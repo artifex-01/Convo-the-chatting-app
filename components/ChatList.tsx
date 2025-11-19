@@ -76,26 +76,28 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
       {/* Header Section */}
       <div className="pt-8 pb-4 px-6 bg-[#F2F4F7] dark:bg-slate-950 transition-colors duration-300">
         {isSearchActive ? (
-           <div className="flex items-center justify-between mb-6 animate-[slideInSearch_0.3s_cubic-bezier(0.16,1,0.3,1)] origin-top">
-            <div className="flex-1 flex items-center bg-white dark:bg-slate-900 rounded-full px-4 py-3 shadow-lg border border-gray-100 dark:border-slate-800 focus-within:ring-2 focus-within:ring-black/5 dark:focus-within:ring-white/10 transition-all">
-               <SearchIcon className="w-5 h-5 text-gray-400 mr-3" />
+           <div className="flex items-center gap-3 mb-6 animate-[slideDownFade_0.3s_cubic-bezier(0.16,1,0.3,1)] origin-top">
+            <div className="flex-1 h-[3.25rem] bg-white dark:bg-slate-900 rounded-full flex items-center px-2 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] border border-transparent focus-within:border-gray-200 dark:focus-within:border-slate-700 focus-within:shadow-[0_4px_25px_-5px_rgba(0,0,0,0.15)] transition-all duration-300">
+               <div className="pl-3 pr-2">
+                  <SearchIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+               </div>
                <input 
                  type="text" 
-                 placeholder="Search chats..." 
-                 className="flex-1 bg-transparent border-none outline-none text-gray-800 dark:text-white placeholder-gray-400 text-sm font-medium"
+                 placeholder="Search chats, messages..." 
+                 className="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 text-[15px] font-medium h-full w-full"
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
                  autoFocus
                />
                {searchQuery && (
-                 <button onClick={() => setSearchQuery('')} className="bg-gray-200 dark:bg-slate-700 rounded-full p-1 hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors animate-[fadeIn_0.2s]">
-                     <XIcon className="w-3 h-3 text-gray-500 dark:text-gray-300" />
+                 <button onClick={() => setSearchQuery('')} className="p-2 mr-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 transition-colors animate-[scaleIn_0.2s_ease-out]">
+                     <XIcon className="w-4 h-4" />
                  </button>
                )}
             </div>
             <button 
                 onClick={() => { setIsSearchActive(false); setSearchQuery(''); }} 
-                className="ml-3 text-sm font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors whitespace-nowrap px-2 py-1 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-lg"
+                className="px-4 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
             >
                 Cancel
             </button>
@@ -315,9 +317,13 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
           from { opacity: 0; transform: translateY(5px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideInSearch {
-          from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+        @keyframes slideDownFade {
+          from { opacity: 0; transform: translateY(-8px) scale(0.98); }
           to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>
