@@ -198,40 +198,40 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
       </div>
 
       {/* New Action Menu & Button */}
-      <div className="absolute bottom-28 right-6 z-20 flex flex-col items-end gap-3">
-        {/* Menu Options as Separate Tiles */}
-        {showNewMenu && (
-           <>
-             {/* Invite Option */}
-             <button 
-                 className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 animate-[fadeIn_0.2s_ease-out] origin-bottom-right hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
-             >
-                 <UserPlusIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                 <span className="font-bold text-sm">Invite</span>
-             </button>
-
+      <div className="absolute bottom-28 right-6 z-20 flex flex-col items-end gap-3 pointer-events-none">
+        
+        {/* Menu Options Container - Manages visibility via opacity/transform for smooth entry/exit */}
+        <div className={`flex flex-col items-end gap-3 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom ${showNewMenu ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
              {/* Create Group Option */}
              <button 
                onClick={() => {
                    onCreateGroupClick();
                    setShowNewMenu(false);
                }}
-               className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 animate-[fadeIn_0.2s_ease-out] origin-bottom-right hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
-               style={{ animationDelay: '0.05s' }}
+               className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
              >
                  <UsersIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                  <span className="font-bold text-sm">Create Group</span>
              </button>
-           </>
-        )}
 
-        {/* Button */}
+             {/* Invite Option */}
+             <button 
+                 className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
+             >
+                 <UserPlusIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                 <span className="font-bold text-sm">Invite</span>
+             </button>
+        </div>
+
+        {/* Toggle Button */}
         <button 
           onClick={() => setShowNewMenu(!showNewMenu)}
-          className={`bg-black dark:bg-white dark:text-black text-white px-5 py-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] dark:shadow-slate-900 flex items-center gap-2 font-bold tracking-wide hover:scale-105 active:scale-95 transition-all ${showNewMenu ? 'bg-gray-800' : ''}`}
+          className={`pointer-events-auto bg-black dark:bg-white dark:text-black text-white px-5 py-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] dark:shadow-slate-900 flex items-center gap-2 font-bold tracking-wide hover:scale-105 active:scale-95 transition-all z-30 ${showNewMenu ? 'bg-gray-800 dark:bg-gray-200' : ''}`}
         >
-          {showNewMenu ? <XIcon className="w-5 h-5 stroke-[3px]" /> : <PlusIcon className="w-5 h-5 stroke-[3px]" />}
-          <span>{showNewMenu ? 'Close' : 'New'}</span>
+          <div className={`transition-transform duration-300 ${showNewMenu ? 'rotate-[135deg]' : 'rotate-0'}`}>
+               <PlusIcon className="w-5 h-5 stroke-[3px]" />
+          </div>
+          <span className="min-w-[40px] text-center transition-all">{showNewMenu ? 'Close' : 'New'}</span>
         </button>
       </div>
 
