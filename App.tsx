@@ -11,11 +11,12 @@ import EditProfilePage from './components/EditProfilePage';
 import CreateGroupPage from './components/CreateGroupPage';
 import ContactInfoPage from './components/ContactInfoPage';
 import { CURRENT_USER, MOCK_CHATS } from './constants';
-import { ChatSession, NavTab } from './types';
+import { ChatSession, NavTab, User } from './types';
 import { VoiceCallPage, VideoCallPage } from './components/CallPages';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User>(CURRENT_USER);
   const [activeTab, setActiveTab] = useState<NavTab>(NavTab.CHATS);
   const [chats, setChats] = useState<ChatSession[]>(MOCK_CHATS);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
@@ -42,6 +43,11 @@ const App: React.FC = () => {
       setChats([newGroup, ...chats]);
       setIsCreatingGroup(false);
       setSelectedChatId(newGroup.id); // Optionally open the new chat immediately
+  };
+
+  const handleSaveProfile = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    setIsEditingProfile(false);
   };
 
   // If user is not logged in, show Login Page
@@ -94,9 +100,9 @@ const App: React.FC = () => {
             // Edit Profile Screen
             <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
                 <EditProfilePage 
-                    user={CURRENT_USER} 
+                    user={currentUser} 
                     onBack={() => setIsEditingProfile(false)} 
-                    onSave={() => setIsEditingProfile(false)} 
+                    onSave={handleSaveProfile} 
                 />
             </div>
             ) : isCreatingGroup ? (
@@ -112,7 +118,7 @@ const App: React.FC = () => {
             <>
                 {activeTab === NavTab.CHATS && (
                 <ChatList 
-                    currentUser={CURRENT_USER} 
+                    currentUser={currentUser} 
                     chats={chats} 
                     onChatSelect={handleChatSelect} 
                     onProfileClick={() => setIsEditingProfile(true)}
@@ -126,7 +132,7 @@ const App: React.FC = () => {
                 
                 {activeTab === NavTab.SETTINGS && (
                 <ProfilePage 
-                    user={CURRENT_USER} 
+                    user={currentUser} 
                     onLogout={() => setIsAuthenticated(false)} 
                     onEditProfile={() => setIsEditingProfile(true)}
                     isDarkMode={isDarkMode}
@@ -136,7 +142,7 @@ const App: React.FC = () => {
                 
                 {/* Status/Updates Grid Tab */}
                 {activeTab === NavTab.GRID && (
-                <StatusPage />
+                <StatusPage currentUser={currentUser} />
                 )}
             </>
             )}

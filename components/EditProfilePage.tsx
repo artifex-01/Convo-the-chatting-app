@@ -1,18 +1,40 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { User } from '../types';
 import { CameraIcon, CheckIcon, ChevronLeftIcon } from './Icon';
 
 interface EditProfilePageProps {
   user: User;
   onBack: () => void;
-  onSave: () => void;
+  onSave: (updatedUser: User) => void;
 }
 
 const EditProfilePage: React.FC<EditProfilePageProps> = ({ user, onBack, onSave }) => {
   const [name, setName] = useState(user.name);
   const [tagline, setTagline] = useState(user.tagline || '');
+  const [avatar, setAvatar] = useState(user.avatar);
   const [phone, setPhone] = useState('+91 98765 43210'); // Mock phone number
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = () => {
+    onSave({
+      ...user,
+      name,
+      tagline,
+      avatar
+    });
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#F2F4F7] dark:bg-slate-950 relative z-30 animate-[slideIn_0.3s_ease-out] transition-colors duration-300">
@@ -28,10 +50,17 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ user, onBack, onSave 
       <div className="flex-1 overflow-y-auto px-6 pb-20 no-scrollbar">
         {/* Avatar Section */}
         <div className="flex flex-col items-center mt-6 mb-10">
-          <div className="relative group cursor-pointer">
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="image/*" 
+            onChange={handleFileChange}
+          />
+          <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             <div className="w-32 h-32 rounded-full p-1 bg-white dark:bg-slate-800 shadow-sm transition-colors duration-300">
                <img 
-                  src={user.avatar} 
+                  src={avatar} 
                   alt="Profile" 
                   className="w-full h-full rounded-full object-cover border border-gray-100 dark:border-slate-700"
                />
@@ -40,7 +69,12 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ user, onBack, onSave 
                <CameraIcon className="w-5 h-5" />
             </div>
           </div>
-          <p className="mt-4 text-blue-600 dark:text-blue-400 font-bold text-sm cursor-pointer hover:underline">Change Profile Photo</p>
+          <p 
+            onClick={() => fileInputRef.current?.click()}
+            className="mt-4 text-blue-600 dark:text-blue-400 font-bold text-sm cursor-pointer hover:underline"
+          >
+            Change Profile Photo
+          </p>
         </div>
 
         {/* Form Fields */}
@@ -87,7 +121,7 @@ const EditProfilePage: React.FC<EditProfilePageProps> = ({ user, onBack, onSave 
       {/* Save Button */}
       <div className="absolute bottom-8 left-0 right-0 px-6">
         <button 
-            onClick={onSave}
+            onClick={handleSave}
             className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-[20px] shadow-xl flex items-center justify-center gap-3 font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
             <CheckIcon className="w-6 h-6" />

@@ -25,7 +25,7 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessageTime: '10:24 AM',
     unreadCount: 5,
     messages: [],
-    category: FilterTab.OFFICE
+    category: FilterTab.ALL
   },
   {
     id: 'c2',
@@ -42,7 +42,7 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessageTime: '09:15 AM',
     unreadCount: 0,
     messages: [],
-    category: FilterTab.OFFICE
+    category: FilterTab.ALL
   },
   {
     id: 'c3',
@@ -59,7 +59,10 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessageTime: 'Yesterday',
     unreadCount: 2,
     messages: [],
-    category: FilterTab.OFFICE
+    category: FilterTab.ALL,
+    isGroup: true,
+    groupName: 'Design Team',
+    groupAvatar: 'https://images.unsplash.com/photo-1522075469751-3a3694fb60ed?q=80&w=100&auto=format&fit=crop'
   },
   {
     id: 'c4',
@@ -76,7 +79,7 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessageTime: '12:30 PM',
     unreadCount: 1,
     messages: [],
-    category: FilterTab.FAMILY
+    category: FilterTab.ALL
   },
   {
     id: 'c5',
@@ -93,7 +96,7 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessageTime: 'Yesterday',
     unreadCount: 0,
     messages: [],
-    category: FilterTab.FAMILY
+    category: FilterTab.ALL
   },
   {
     id: 'c6',
@@ -110,7 +113,7 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessageTime: 'Yesterday',
     unreadCount: 3,
     messages: [],
-    category: FilterTab.FAMILY
+    category: FilterTab.ALL
   },
   {
     id: 'c7',
@@ -127,6 +130,6 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessageTime: 'Mon',
     unreadCount: 0,
     messages: [],
-    category: FilterTab.ARCHIVE
+    category: FilterTab.NEW
   }
 ];

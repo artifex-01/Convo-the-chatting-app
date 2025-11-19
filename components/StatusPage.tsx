@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CameraIcon, EditIcon, MoreVerticalIcon, PlusIcon, SearchIcon } from './Icon';
-import { CURRENT_USER } from '../constants';
+import { User } from '../types';
 
 // Mock Status Data
 const MOCK_STATUS = [
@@ -35,7 +35,11 @@ const MOCK_STATUS = [
   }
 ];
 
-const StatusPage: React.FC = () => {
+interface StatusPageProps {
+  currentUser: User;
+}
+
+const StatusPage: React.FC<StatusPageProps> = ({ currentUser }) => {
   const recentUpdates = MOCK_STATUS.filter(s => !s.isViewed);
   const viewedUpdates = MOCK_STATUS.filter(s => s.isViewed);
 
@@ -67,7 +71,7 @@ const StatusPage: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 rounded-[20px] p-4 flex items-center gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] dark:shadow-none cursor-pointer active:scale-[0.98] transition-transform">
             <div className="relative">
                  <img 
-                    src={CURRENT_USER.avatar} 
+                    src={currentUser.avatar} 
                     alt="My Status" 
                     className="w-14 h-14 rounded-full object-cover border border-gray-200 dark:border-slate-700"
                  />

@@ -25,9 +25,9 @@ export enum NavTab {
 
 export enum FilterTab {
   ALL = 'ALL',
-  OFFICE = 'OFFICE',
-  FAMILY = 'FAMILY',
-  ARCHIVE = 'ARCHIVE'
+  UNREAD = 'UNREAD',
+  GROUP = 'GROUP',
+  NEW = 'NEW'
 }
 
 export interface ChatSession {
@@ -37,7 +37,7 @@ export interface ChatSession {
   lastMessageTime: string; // Display string like "10:24 AM"
   unreadCount: number;
   messages: Message[];
-  category: FilterTab;
+  category?: FilterTab; // Optional, primarily for the 'New' tab or custom categorization
   isGroup?: boolean;
   groupName?: string;
   groupAvatar?: string;

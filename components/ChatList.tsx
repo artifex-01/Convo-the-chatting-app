@@ -19,14 +19,57 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
 
   // Filter chats based on active tab and search query
   const filteredChats = chats.filter(chat => {
-    const matchesCategory = activeFilter === FilterTab.ALL || chat.category === activeFilter;
-    
-    const displayTitle = chat.isGroup && chat.groupName ? chat.groupName : chat.participants[0].name;
+    // 1. Filter by Search Query
+    const isGroup = chat.isGroup;
+    const displayTitle = isGroup && chat.groupName ? chat.groupName : chat.participants[0].name;
     const matchesSearch = displayTitle.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
     
-    return matchesCategory && matchesSearch;
+    if (!matchesSearch) return false;
+
+    // 2. Filter by Tab Category
+    switch (activeFilter) {
+      case FilterTab.UNREAD:
+        return chat.unreadCount > 0;
+      case FilterTab.GROUP:
+        return chat.isGroup === true;
+      case FilterTab.NEW:
+        return chat.category === FilterTab.NEW;
+      case FilterTab.ALL:
+      default:
+        return true;
+    }
   });
+
+  // Handle Keyboard Navigation for Tabs (Roving Tabindex)
+  const handleTabKeyDown = (e: React.KeyboardEvent, currentTab: FilterTab) => {
+    const tabs = [FilterTab.ALL, FilterTab.UNREAD, FilterTab.GROUP, FilterTab.NEW];
+    const currentIndex = tabs.indexOf(currentTab);
+    let nextTab: FilterTab | null = null;
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextTab = tabs[(currentIndex + 1) % tabs.length];
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      nextTab = tabs[(currentIndex - 1 + tabs.length) % tabs.length];
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      nextTab = tabs[0];
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      nextTab = tabs[tabs.length - 1];
+    }
+
+    if (nextTab) {
+      setActiveFilter(nextTab);
+      // Focus the next tab element after state update
+      setTimeout(() => {
+        const element = document.getElementById(`tab-${nextTab}`);
+        element?.focus();
+      }, 0);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#F2F4F7] dark:bg-slate-950 relative transition-colors duration-300">
@@ -80,10 +123,14 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
               <button 
                 onClick={() => setIsSearchActive(true)}
                 className="p-2 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm rounded-full transition-all hover:scale-110 active:scale-95"
+                aria-label="Search"
               >
                   <SearchIcon className="w-6 h-6" />
               </button>
-              <button className="p-2 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm rounded-full transition-all hover:scale-110 active:scale-95">
+              <button 
+                className="p-2 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm rounded-full transition-all hover:scale-110 active:scale-95"
+                aria-label="More options"
+              >
                   <MoreVerticalIcon className="w-6 h-6" />
               </button>
             </div>
@@ -95,18 +142,28 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
           <span className="bg-white dark:bg-slate-800 px-3 py-1 rounded-full text-sm font-bold text-gray-800 dark:text-white shadow-sm">{filteredChats.length}</span>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center justify-start gap-8 border-b border-gray-200/50 dark:border-slate-700/50 pb-0">
+        {/* Tabs with Accessibility */}
+        <div 
+          className="flex items-center justify-start gap-8 border-b border-gray-200/50 dark:border-slate-700/50 pb-0"
+          role="tablist"
+          aria-label="Chat filters"
+        >
           {[
             { label: 'All', id: FilterTab.ALL },
-            { label: 'Office', id: FilterTab.OFFICE },
-            { label: 'Family', id: FilterTab.FAMILY },
-            { label: 'Archive', id: FilterTab.ARCHIVE },
+            { label: 'Unread', id: FilterTab.UNREAD },
+            { label: 'Group', id: FilterTab.GROUP },
+            { label: 'New', id: FilterTab.NEW },
           ].map((tab) => (
             <button
               key={tab.id}
+              id={`tab-${tab.id}`}
+              role="tab"
+              aria-selected={activeFilter === tab.id}
+              aria-controls="chat-list-panel"
+              tabIndex={activeFilter === tab.id ? 0 : -1}
               onClick={() => setActiveFilter(tab.id)}
-              className={`pb-3 text-[15px] relative transition-all duration-200 ${
+              onKeyDown={(e) => handleTabKeyDown(e, tab.id)}
+              className={`pb-3 text-[15px] relative transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:rounded-sm ${
                 activeFilter === tab.id 
                   ? 'font-bold text-[#0F172A] dark:text-white border-b-2 border-black dark:border-white -mb-[1px]' 
                   : 'font-medium text-[#94A3B8] dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 border-transparent'
@@ -119,7 +176,12 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
       </div>
 
       {/* Chat Items List */}
-      <div className="flex-1 overflow-y-auto px-4 pb-32 no-scrollbar space-y-3">
+      <div 
+        id="chat-list-panel"
+        role="tabpanel"
+        aria-labelledby={`tab-${activeFilter}`}
+        className="flex-1 overflow-y-auto px-4 pb-32 no-scrollbar space-y-3"
+      >
         {filteredChats.length > 0 ? (
           filteredChats.map((chat, index) => {
             const isGroup = chat.isGroup;
@@ -132,7 +194,15 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
               <div
                 key={chat.id}
                 onClick={() => onChatSelect(chat.id)}
-                className="bg-white dark:bg-slate-900 rounded-[20px] p-4 flex items-center gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] dark:shadow-none cursor-pointer active:scale-[0.98] transition-transform animate-[fadeIn_0.3s_ease-out_fill-mode-backwards]"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onChatSelect(chat.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                className="bg-white dark:bg-slate-900 rounded-[20px] p-4 flex items-center gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] dark:shadow-none cursor-pointer active:scale-[0.98] transition-transform animate-[fadeIn_0.3s_ease-out_fill-mode-backwards] outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className="relative">
@@ -200,23 +270,26 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
       {/* New Action Menu & Button */}
       <div className="absolute bottom-28 right-6 z-20 flex flex-col items-end gap-3 pointer-events-none">
         
-        {/* Menu Options Container - Manages visibility via opacity/transform for smooth entry/exit */}
-        <div className={`flex flex-col items-end gap-3 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom ${showNewMenu ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
-             {/* Create Group Option */}
+        {/* Create Group Option */}
+        <div className={`transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom ${showNewMenu ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
              <button 
                onClick={() => {
                    onCreateGroupClick();
                    setShowNewMenu(false);
                }}
-               className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
+               className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 hover:scale-105 transition-transform text-gray-700 dark:text-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500"
+               aria-label="Create a new group"
              >
                  <UsersIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                  <span className="font-bold text-sm">Create Group</span>
              </button>
+        </div>
 
-             {/* Invite Option */}
+        {/* Invite Option */}
+        <div className={`transition-all duration-300 delay-75 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom ${showNewMenu ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
              <button 
-                 className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
+                 className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 hover:scale-105 transition-transform text-gray-700 dark:text-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500"
+                 aria-label="Invite friends"
              >
                  <UserPlusIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                  <span className="font-bold text-sm">Invite</span>
@@ -226,7 +299,9 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
         {/* Toggle Button */}
         <button 
           onClick={() => setShowNewMenu(!showNewMenu)}
-          className={`pointer-events-auto bg-black dark:bg-white dark:text-black text-white px-5 py-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] dark:shadow-slate-900 flex items-center gap-2 font-bold tracking-wide hover:scale-105 active:scale-95 transition-all z-30 ${showNewMenu ? 'bg-gray-800 dark:bg-gray-200' : ''}`}
+          aria-expanded={showNewMenu}
+          aria-label={showNewMenu ? "Close menu" : "Create new"}
+          className={`pointer-events-auto bg-black dark:bg-white dark:text-black text-white px-5 py-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] dark:shadow-slate-900 flex items-center gap-2 font-bold tracking-wide hover:scale-105 active:scale-95 transition-all z-30 ${showNewMenu ? 'bg-gray-800 dark:bg-gray-200' : ''} focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2`}
         >
           <div className={`transition-transform duration-300 ${showNewMenu ? 'rotate-[135deg]' : 'rotate-0'}`}>
                <PlusIcon className="w-5 h-5 stroke-[3px]" />
