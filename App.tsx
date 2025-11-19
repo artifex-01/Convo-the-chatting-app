@@ -4,6 +4,7 @@ import ChatScreen from './components/ChatScreen';
 import BottomNav from './components/BottomNav';
 import ProfilePage from './components/ProfilePage';
 import LoginPage from './components/LoginPage';
+import CallHistoryPage from './components/CallHistoryPage';
 import { CURRENT_USER, MOCK_CHATS } from './constants';
 import { ChatSession, NavTab } from './types';
 import { VoiceCallPage, VideoCallPage } from './components/CallPages';
@@ -62,13 +63,17 @@ const App: React.FC = () => {
                 onChatSelect={handleChatSelect} 
               />
             )}
+
+            {activeTab === NavTab.CALLS && (
+              <CallHistoryPage />
+            )}
             
             {activeTab === NavTab.SETTINGS && (
               <ProfilePage user={CURRENT_USER} onLogout={() => setIsAuthenticated(false)} />
             )}
             
-            {/* Placeholder for other tabs */}
-            {(activeTab === NavTab.GRID || activeTab === NavTab.CALLS) && (
+            {/* Placeholder for Grid tab */}
+            {activeTab === NavTab.GRID && (
                <div className="flex flex-col items-center justify-center h-full text-gray-400 font-medium p-8 text-center">
                   <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
                       <span className="text-2xl">🚧</span>

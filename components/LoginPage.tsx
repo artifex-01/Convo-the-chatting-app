@@ -13,15 +13,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
        {/* Header */}
        <div className="pt-24 px-8 pb-12">
           <div className="flex items-center gap-3 mb-2">
-             {/* Flag/Language indicator - keeping it simple based on screenshot top right 'ENG' */}
-             <div className="absolute top-8 right-8 flex items-center gap-2">
-                <span className="text-2xl">🇬🇧</span>
-                <span className="font-bold text-sm tracking-wider text-gray-700">ENG</span>
-             </div>
+             {/* Language indicator removed as requested */}
           </div>
           <h1 className="text-5xl font-black text-gray-900 leading-tight tracking-tight">
             Welcome to <br />
-            Chatinc 👋
+            Convo 👋
           </h1>
        </div>
 
@@ -33,8 +29,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <label className="block text-gray-900 font-bold text-lg mb-4">Enter your phone number</label>
             <div className="bg-gray-50 rounded-2xl p-4 flex items-center border border-gray-200 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
                <div className="flex items-center gap-2 pr-3 border-r border-gray-300">
-                  <span className="text-2xl">🇮🇩</span>
-                  <span className="font-medium text-gray-500">+62</span>
+                  <span className="text-2xl">🇮🇳</span>
+                  <span className="font-medium text-gray-500">+91</span>
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                </div>
                <input 
