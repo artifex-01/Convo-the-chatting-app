@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChatSession, FilterTab, User } from '../types';
-import { BriefcaseIcon, MoreVerticalIcon, SearchIcon, PlusIcon, XIcon } from './Icon';
+import { BriefcaseIcon, MoreVerticalIcon, SearchIcon, PlusIcon, XIcon, UsersIcon, UserPlusIcon } from './Icon';
 
 interface ChatListProps {
   currentUser: User;
@@ -14,6 +14,7 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
   const [activeFilter, setActiveFilter] = useState<FilterTab>(FilterTab.ALL);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [showNewMenu, setShowNewMenu] = useState(false);
 
   // Filter chats based on active tab and search query
   const filteredChats = chats.filter(chat => {
@@ -187,11 +188,32 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
         )}
       </div>
 
-      {/* New Contact Button */}
-      <button className="absolute bottom-28 right-6 bg-black dark:bg-white dark:text-black text-white px-5 py-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] dark:shadow-slate-900 flex items-center gap-2 font-bold tracking-wide hover:scale-105 active:scale-95 transition-all z-10">
-        <PlusIcon className="w-5 h-5 stroke-[3px]" />
-        <span>New</span>
-      </button>
+      {/* New Action Menu & Button */}
+      <div className="absolute bottom-28 right-6 z-20 flex flex-col items-end gap-3">
+        {/* Menu */}
+        {showNewMenu && (
+           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 p-2 min-w-[160px] animate-[fadeIn_0.2s_ease-out] origin-bottom-right mb-1">
+               <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-gray-700 dark:text-gray-200 group">
+                   <UsersIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                   <span className="font-bold text-sm group-hover:text-black dark:group-hover:text-white transition-colors">Create Group</span>
+               </button>
+               <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-gray-700 dark:text-gray-200 group">
+                   <UserPlusIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                   <span className="font-bold text-sm group-hover:text-black dark:group-hover:text-white transition-colors">Invite</span>
+               </button>
+           </div>
+        )}
+
+        {/* Button */}
+        <button 
+          onClick={() => setShowNewMenu(!showNewMenu)}
+          className={`bg-black dark:bg-white dark:text-black text-white px-5 py-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] dark:shadow-slate-900 flex items-center gap-2 font-bold tracking-wide hover:scale-105 active:scale-95 transition-all ${showNewMenu ? 'bg-gray-800' : ''}`}
+        >
+          {showNewMenu ? <XIcon className="w-5 h-5 stroke-[3px]" /> : <PlusIcon className="w-5 h-5 stroke-[3px]" />}
+          <span>{showNewMenu ? 'Close' : 'New'}</span>
+        </button>
+      </div>
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-5px); }
