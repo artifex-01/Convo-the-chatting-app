@@ -8,6 +8,8 @@ import LoginPage from './components/LoginPage';
 import CallHistoryPage from './components/CallHistoryPage';
 import StatusPage from './components/StatusPage';
 import EditProfilePage from './components/EditProfilePage';
+import CreateGroupPage from './components/CreateGroupPage';
+import ContactInfoPage from './components/ContactInfoPage';
 import { CURRENT_USER, MOCK_CHATS } from './constants';
 import { ChatSession, NavTab } from './types';
 import { VoiceCallPage, VideoCallPage } from './components/CallPages';
@@ -15,13 +17,17 @@ import { VoiceCallPage, VideoCallPage } from './components/CallPages';
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState<NavTab>(NavTab.CHATS);
+  const [chats, setChats] = useState<ChatSession[]>(MOCK_CHATS);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [activeCall, setActiveCall] = useState<{ type: 'voice' | 'video', chat: ChatSession } | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [viewingContactInfo, setViewingContactInfo] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const handleChatSelect = (chatId: string) => {
     setSelectedChatId(chatId);
+    setViewingContactInfo(false); // Reset contact info view when selecting new chat
   };
 
   const handleBackToHome = () => {
@@ -30,6 +36,12 @@ const App: React.FC = () => {
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
+  };
+
+  const handleCreateGroup = (newGroup: ChatSession) => {
+      setChats([newGroup, ...chats]);
+      setIsCreatingGroup(false);
+      setSelectedChatId(newGroup.id); // Optionally open the new chat immediately
   };
 
   // If user is not logged in, show Login Page
@@ -41,7 +53,7 @@ const App: React.FC = () => {
     );
   }
 
-  const activeChatSession = MOCK_CHATS.find(c => c.id === selectedChatId);
+  const activeChatSession = chats.find(c => c.id === selectedChatId);
 
   // Render Call Screens Overlay
   if (activeCall) {
@@ -65,7 +77,18 @@ const App: React.FC = () => {
                     onBack={handleBackToHome}
                     onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
                     onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
+                    onHeaderClick={() => setViewingContactInfo(true)}
                 />
+                
+                {/* Contact Info Page Overlay */}
+                {viewingContactInfo && (
+                  <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
+                    <ContactInfoPage 
+                      contact={activeChatSession.participants[0]}
+                      onBack={() => setViewingContactInfo(false)}
+                    />
+                  </div>
+                )}
             </div>
             ) : isEditingProfile ? (
             // Edit Profile Screen
@@ -76,15 +99,24 @@ const App: React.FC = () => {
                     onSave={() => setIsEditingProfile(false)} 
                 />
             </div>
+            ) : isCreatingGroup ? (
+            // Create Group Screen
+            <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
+                <CreateGroupPage 
+                    onBack={() => setIsCreatingGroup(false)}
+                    onCreate={handleCreateGroup}
+                />
+            </div>
             ) : (
             // Tab Views
             <>
                 {activeTab === NavTab.CHATS && (
                 <ChatList 
                     currentUser={CURRENT_USER} 
-                    chats={MOCK_CHATS} 
+                    chats={chats} 
                     onChatSelect={handleChatSelect} 
                     onProfileClick={() => setIsEditingProfile(true)}
+                    onCreateGroupClick={() => setIsCreatingGroup(true)}
                 />
                 )}
 
@@ -111,7 +143,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Bottom Navigation - Only show on home screen */}
-        {!selectedChatId && !isEditingProfile && (
+        {!selectedChatId && !isEditingProfile && !isCreatingGroup && (
             <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
         )}
         

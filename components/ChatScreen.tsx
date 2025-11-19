@@ -10,27 +10,46 @@ interface ChatScreenProps {
   onBack: () => void;
   onVoiceCall: () => void;
   onVideoCall: () => void;
+  onHeaderClick: () => void;
 }
 
-const ChatScreen: React.FC<ChatScreenProps> = ({ chatSession, onBack, onVoiceCall, onVideoCall }) => {
+const ChatScreen: React.FC<ChatScreenProps> = ({ chatSession, onBack, onVoiceCall, onVideoCall, onHeaderClick }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const geminiChatRef = useRef<Chat | null>(null);
-  const otherUser = chatSession.participants[0];
+  
+  // Determine display details
+  const isGroup = chatSession.isGroup;
+  const displayAvatar = isGroup && chatSession.groupAvatar ? chatSession.groupAvatar : chatSession.participants[0].avatar;
+  const displayName = isGroup && chatSession.groupName ? chatSession.groupName : chatSession.participants[0].name;
+  const statusText = isGroup 
+    ? `${chatSession.participants.length} participants`
+    : (chatSession.participants[0].status === 'online' ? 'Online' : 'Last seen recently');
+  const isOnline = !isGroup && chatSession.participants[0].status === 'online';
 
   // Initialize chat with existing messages or history (simulated)
   useEffect(() => {
     // Initialize Gemini Chat
-    geminiChatRef.current = createChatSession(otherUser.name);
+    // For groups, we'll just use the group name as context or generic
+    geminiChatRef.current = createChatSession(displayName);
     
-    // Set initial messages (simulated history + session messages if any)
-    setMessages([
-        { id: 'm0', text: chatSession.lastMessage, senderId: otherUser.id, timestamp: new Date(), isOwn: false },
-        ...chatSession.messages
-    ]);
-  }, [chatSession, otherUser]);
+    // Set initial messages
+    // Include the last message as history if the messages array is empty
+    let initialMessages = chatSession.messages;
+    if (initialMessages.length === 0 && chatSession.lastMessage) {
+        const senderId = isGroup ? chatSession.participants[0].id : chatSession.participants[0].id;
+        initialMessages = [{ 
+            id: 'm0', 
+            text: chatSession.lastMessage, 
+            senderId: senderId, 
+            timestamp: new Date(), 
+            isOwn: false 
+        }];
+    }
+    setMessages(initialMessages);
+  }, [chatSession, displayName, isGroup]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -56,9 +75,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ chatSession, onBack, onVoiceCal
     if (geminiChatRef.current) {
         const responseText = await sendMessageToGemini(geminiChatRef.current, newUserMessage.text);
         
+        // Simulate response from "someone" in the chat
+        const responderId = isGroup ? chatSession.participants[0].id : chatSession.participants[0].id;
+        
         const newAiMessage: Message = {
             id: (Date.now() + 1).toString(),
-            senderId: otherUser.id,
+            senderId: responderId,
             text: responseText,
             timestamp: new Date(),
             isOwn: false,
@@ -81,16 +103,16 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ chatSession, onBack, onVoiceCal
             <button onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
               <ChevronLeftIcon className="w-6 h-6 text-gray-800 dark:text-white" />
             </button>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={onHeaderClick}>
                 <div className="relative">
-                    <img src={otherUser.avatar} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
-                    {otherUser.status === 'online' && (
+                    <img src={displayAvatar} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
+                    {isOnline && (
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
                     )}
                 </div>
                 <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white">{otherUser.name}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{otherUser.status === 'online' ? 'Online' : 'Last seen recently'}</p>
+                    <h3 className="font-bold text-gray-900 dark:text-white">{displayName}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{statusText}</p>
                 </div>
             </div>
           </div>
@@ -111,7 +133,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ chatSession, onBack, onVoiceCal
             className={`flex ${msg.isOwn ? 'justify-end' : 'justify-start'}`}
           >
             {!msg.isOwn && (
-                <img src={otherUser.avatar} className="w-8 h-8 rounded-full mr-2 self-end mb-1" />
+                <img src={displayAvatar} className="w-8 h-8 rounded-full mr-2 self-end mb-1" />
             )}
             <div
               className={`max-w-[75%] px-5 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
@@ -126,7 +148,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ chatSession, onBack, onVoiceCal
         ))}
         {isTyping && (
           <div className="flex justify-start">
-             <img src={otherUser.avatar} className="w-8 h-8 rounded-full mr-2 self-end mb-1" />
+             <img src={displayAvatar} className="w-8 h-8 rounded-full mr-2 self-end mb-1" />
             <div className="bg-white dark:bg-slate-800 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm">
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>

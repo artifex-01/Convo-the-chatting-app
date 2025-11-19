@@ -8,9 +8,10 @@ interface ChatListProps {
   chats: ChatSession[];
   onChatSelect: (chatId: string) => void;
   onProfileClick: () => void;
+  onCreateGroupClick: () => void;
 }
 
-const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, onProfileClick }) => {
+const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, onProfileClick, onCreateGroupClick }) => {
   const [activeFilter, setActiveFilter] = useState<FilterTab>(FilterTab.ALL);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -19,8 +20,11 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
   // Filter chats based on active tab and search query
   const filteredChats = chats.filter(chat => {
     const matchesCategory = activeFilter === FilterTab.ALL || chat.category === activeFilter;
-    const matchesSearch = chat.participants[0].name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    
+    const displayTitle = chat.isGroup && chat.groupName ? chat.groupName : chat.participants[0].name;
+    const matchesSearch = displayTitle.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
+    
     return matchesCategory && matchesSearch;
   });
 
@@ -118,7 +122,12 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
       <div className="flex-1 overflow-y-auto px-4 pb-32 no-scrollbar space-y-3">
         {filteredChats.length > 0 ? (
           filteredChats.map((chat, index) => {
-            const otherUser = chat.participants[0];
+            const isGroup = chat.isGroup;
+            const displayAvatar = isGroup && chat.groupAvatar ? chat.groupAvatar : chat.participants[0].avatar;
+            const displayName = isGroup && chat.groupName ? chat.groupName : chat.participants[0].name;
+            const isStoryActive = !isGroup && chat.participants[0].isStoryActive;
+            const status = !isGroup ? chat.participants[0].status : null;
+
             return (
               <div
                 key={chat.id}
@@ -128,17 +137,17 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
               >
                 <div className="relative">
                   {/* Avatar Ring */}
-                  <div className={`rounded-full p-[2px] ${otherUser.isStoryActive ? 'bg-gradient-to-tr from-rose-400 to-red-500' : 'bg-transparent'}`}>
+                  <div className={`rounded-full p-[2px] ${isStoryActive ? 'bg-gradient-to-tr from-rose-400 to-red-500' : 'bg-transparent'}`}>
                       <div className="bg-white dark:bg-slate-900 p-[2px] rounded-full">
                           <img
-                          src={otherUser.avatar}
-                          alt={otherUser.name}
+                          src={displayAvatar}
+                          alt={displayName}
                           className="w-12 h-12 rounded-full object-cover"
                           />
                       </div>
                   </div>
-                  {/* Online Status Dot */}
-                  {otherUser.status === 'online' && (
+                  {/* Online Status Dot - only for single users */}
+                  {status === 'online' && (
                     <span className="absolute bottom-1 right-0 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white dark:border-slate-900 rounded-full shadow-sm"></span>
                   )}
                 </div>
@@ -149,11 +158,11 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
                         {/* Highlight search query if exists */}
                         {searchQuery ? (
                             <span>
-                                {otherUser.name.split(new RegExp(`(${searchQuery})`, 'gi')).map((part, i) => 
+                                {displayName.split(new RegExp(`(${searchQuery})`, 'gi')).map((part, i) => 
                                     part.toLowerCase() === searchQuery.toLowerCase() ? <span key={i} className="bg-yellow-200 text-black rounded-sm px-0.5">{part}</span> : part
                                 )}
                             </span>
-                        ) : otherUser.name}
+                        ) : displayName}
                     </h3>
                     <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{chat.lastMessageTime}</span>
                   </div>
@@ -190,18 +199,30 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
 
       {/* New Action Menu & Button */}
       <div className="absolute bottom-28 right-6 z-20 flex flex-col items-end gap-3">
-        {/* Menu */}
+        {/* Menu Options as Separate Tiles */}
         {showNewMenu && (
-           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 p-2 min-w-[160px] animate-[fadeIn_0.2s_ease-out] origin-bottom-right mb-1">
-               <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-gray-700 dark:text-gray-200 group">
-                   <UsersIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                   <span className="font-bold text-sm group-hover:text-black dark:group-hover:text-white transition-colors">Create Group</span>
-               </button>
-               <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-gray-700 dark:text-gray-200 group">
-                   <UserPlusIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                   <span className="font-bold text-sm group-hover:text-black dark:group-hover:text-white transition-colors">Invite</span>
-               </button>
-           </div>
+           <>
+             {/* Invite Option */}
+             <button 
+                 className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 animate-[fadeIn_0.2s_ease-out] origin-bottom-right hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
+             >
+                 <UserPlusIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                 <span className="font-bold text-sm">Invite</span>
+             </button>
+
+             {/* Create Group Option */}
+             <button 
+               onClick={() => {
+                   onCreateGroupClick();
+                   setShowNewMenu(false);
+               }}
+               className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 animate-[fadeIn_0.2s_ease-out] origin-bottom-right hover:scale-105 transition-transform text-gray-700 dark:text-gray-200"
+               style={{ animationDelay: '0.05s' }}
+             >
+                 <UsersIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                 <span className="font-bold text-sm">Create Group</span>
+             </button>
+           </>
         )}
 
         {/* Button */}
@@ -216,7 +237,7 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
 
       <style>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-5px); }
+          from { opacity: 0; transform: translateY(5px); }
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes slideInSearch {

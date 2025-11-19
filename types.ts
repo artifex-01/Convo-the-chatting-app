@@ -38,4 +38,7 @@ export interface ChatSession {
   unreadCount: number;
   messages: Message[];
   category: FilterTab;
+  isGroup?: boolean;
+  groupName?: string;
+  groupAvatar?: string;
 }
