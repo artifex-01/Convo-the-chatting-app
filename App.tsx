@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import ChatList from './components/ChatList';
 import ChatScreen from './components/ChatScreen';
@@ -6,6 +7,7 @@ import ProfilePage from './components/ProfilePage';
 import LoginPage from './components/LoginPage';
 import CallHistoryPage from './components/CallHistoryPage';
 import StatusPage from './components/StatusPage';
+import EditProfilePage from './components/EditProfilePage';
 import { CURRENT_USER, MOCK_CHATS } from './constants';
 import { ChatSession, NavTab } from './types';
 import { VoiceCallPage, VideoCallPage } from './components/CallPages';
@@ -15,6 +17,8 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>(NavTab.CHATS);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [activeCall, setActiveCall] = useState<{ type: 'voice' | 'video', chat: ChatSession } | null>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const handleChatSelect = (chatId: string) => {
     setSelectedChatId(chatId);
@@ -24,9 +28,17 @@ const App: React.FC = () => {
     setSelectedChatId(null);
   };
 
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   // If user is not logged in, show Login Page
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
+    return (
+        <div className={isDarkMode ? 'dark' : ''}>
+            <LoginPage onLogin={() => setIsAuthenticated(true)} />
+        </div>
+    );
   }
 
   const activeChatSession = MOCK_CHATS.find(c => c.id === selectedChatId);
@@ -41,58 +53,76 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-full relative bg-[#F2F4F7] flex flex-col overflow-hidden">
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden relative">
-        {selectedChatId && activeChatSession ? (
-          // Chat Detail View
-          <div className="absolute inset-0 z-20 bg-[#F2F4F7] animate-[slideIn_0.3s_ease-out]">
-            <ChatScreen 
-                chatSession={activeChatSession} 
-                onBack={handleBackToHome}
-                onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
-                onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
-            />
-          </div>
-        ) : (
-          // Tab Views
-          <>
-            {activeTab === NavTab.CHATS && (
-              <ChatList 
-                currentUser={CURRENT_USER} 
-                chats={MOCK_CHATS} 
-                onChatSelect={handleChatSelect} 
-              />
-            )}
+    <div className={`${isDarkMode ? 'dark' : ''} w-full h-full`}>
+        <div className="w-full h-full relative bg-[#F2F4F7] dark:bg-slate-950 flex flex-col overflow-hidden transition-colors duration-300">
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-hidden relative">
+            {/* Active Chat Screen */}
+            {selectedChatId && activeChatSession ? (
+            <div className="absolute inset-0 z-20 bg-[#F2F4F7] dark:bg-slate-950 animate-[slideIn_0.3s_ease-out]">
+                <ChatScreen 
+                    chatSession={activeChatSession} 
+                    onBack={handleBackToHome}
+                    onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
+                    onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
+                />
+            </div>
+            ) : isEditingProfile ? (
+            // Edit Profile Screen
+            <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
+                <EditProfilePage 
+                    user={CURRENT_USER} 
+                    onBack={() => setIsEditingProfile(false)} 
+                    onSave={() => setIsEditingProfile(false)} 
+                />
+            </div>
+            ) : (
+            // Tab Views
+            <>
+                {activeTab === NavTab.CHATS && (
+                <ChatList 
+                    currentUser={CURRENT_USER} 
+                    chats={MOCK_CHATS} 
+                    onChatSelect={handleChatSelect} 
+                    onProfileClick={() => setIsEditingProfile(true)}
+                />
+                )}
 
-            {activeTab === NavTab.CALLS && (
-              <CallHistoryPage />
+                {activeTab === NavTab.CALLS && (
+                <CallHistoryPage />
+                )}
+                
+                {activeTab === NavTab.SETTINGS && (
+                <ProfilePage 
+                    user={CURRENT_USER} 
+                    onLogout={() => setIsAuthenticated(false)} 
+                    onEditProfile={() => setIsEditingProfile(true)}
+                    isDarkMode={isDarkMode}
+                    onToggleDarkMode={toggleDarkMode}
+                />
+                )}
+                
+                {/* Status/Updates Grid Tab */}
+                {activeTab === NavTab.GRID && (
+                <StatusPage />
+                )}
+            </>
             )}
-            
-            {activeTab === NavTab.SETTINGS && (
-              <ProfilePage user={CURRENT_USER} onLogout={() => setIsAuthenticated(false)} />
-            )}
-            
-            {/* Status/Updates Grid Tab */}
-            {activeTab === NavTab.GRID && (
-               <StatusPage />
-            )}
-          </>
+        </div>
+
+        {/* Bottom Navigation - Only show on home screen */}
+        {!selectedChatId && !isEditingProfile && (
+            <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
         )}
-      </div>
-
-      {/* Bottom Navigation - Only show on home screen */}
-      {!selectedChatId && (
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      )}
-      
-      {/* Add some custom animation styles via style tag within component for slide effect */}
-      <style>{`
-        @keyframes slideIn {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
-      `}</style>
+        
+        {/* Add some custom animation styles via style tag within component for slide effect */}
+        <style>{`
+            @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+            }
+        `}</style>
+        </div>
     </div>
   );
 };

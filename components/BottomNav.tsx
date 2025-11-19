@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavTab } from '../types';
 import { GridIcon, MessageIcon, PhoneIcon, SettingsIcon } from './Icon';
@@ -17,7 +18,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
 
   return (
     <div className="absolute bottom-6 left-0 right-0 px-6 z-30">
-      <div className="bg-white rounded-[2.5rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.2)] px-3 py-3 flex justify-between items-center h-20">
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] px-3 py-3 flex justify-between items-center h-20 transition-colors duration-300">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
           const Icon = item.icon;
@@ -27,13 +28,15 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
               key={item.id}
               onClick={() => onTabChange(item.id)}
               className={`flex items-center justify-center gap-2 px-4 py-3 rounded-full transition-all duration-300 ease-out ${
-                isActive ? 'bg-black text-white flex-grow-[0.5]' : 'text-gray-400 hover:bg-gray-50 bg-transparent flex-grow-0'
+                isActive 
+                  ? 'bg-black dark:bg-white text-white dark:text-black flex-grow-[0.5]' 
+                  : 'text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800 bg-transparent flex-grow-0'
               }`}
             >
               <div className="relative flex-shrink-0">
                 <Icon className="w-6 h-6" fill={isActive && item.id === NavTab.CHATS} />
                 {item.hasBadge && !isActive && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                 )}
               </div>
               

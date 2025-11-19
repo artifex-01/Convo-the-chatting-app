@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ArrowDownLeftIcon, ArrowUpRightIcon, MoreVerticalIcon, PhoneIcon, PhonePlusIcon, SearchIcon, VideoIcon } from './Icon';
 
@@ -61,30 +62,30 @@ const MOCK_CALL_HISTORY = [
 
 const CallHistoryPage: React.FC = () => {
   return (
-    <div className="flex flex-col h-full bg-[#F2F4F7]">
+    <div className="flex flex-col h-full bg-[#F2F4F7] dark:bg-slate-950 transition-colors duration-300">
       {/* Header Section */}
-      <div className="pt-8 pb-4 px-6 bg-[#F2F4F7]">
+      <div className="pt-8 pb-4 px-6 bg-[#F2F4F7] dark:bg-slate-950 transition-colors duration-300">
         <div className="flex items-start justify-between mb-6">
            {/* Placeholder left space or user avatar could go here if needed, keeping it cleaner for calls */}
            <div className="w-10"></div>
            
-           <div className="flex items-center gap-4 text-gray-500">
-            <button className="p-2 hover:bg-white hover:shadow-sm rounded-full transition-all">
+           <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400">
+            <button className="p-2 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm rounded-full transition-all">
                 <SearchIcon className="w-6 h-6" />
             </button>
-            <button className="p-2 hover:bg-white hover:shadow-sm rounded-full transition-all">
-                <PhonePlusIcon className="w-6 h-6 text-black" />
+            <button className="p-2 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm rounded-full transition-all">
+                <PhonePlusIcon className="w-6 h-6 text-black dark:text-white" />
             </button>
           </div>
         </div>
 
         <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-3xl font-bold text-gray-800">Calls</h1>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Calls</h1>
         </div>
         
-        <div className="flex items-center gap-4 text-sm font-bold text-gray-400 border-b border-gray-200/50">
-            <button className="pb-3 text-black border-b-2 border-black">ALL</button>
-            <button className="pb-3 hover:text-gray-600">MISSED</button>
+        <div className="flex items-center gap-4 text-sm font-bold text-gray-400 border-b border-gray-200/50 dark:border-slate-800/50">
+            <button className="pb-3 text-black dark:text-white border-b-2 border-black dark:border-white">ALL</button>
+            <button className="pb-3 hover:text-gray-600 dark:hover:text-gray-300">MISSED</button>
         </div>
       </div>
 
@@ -93,18 +94,18 @@ const CallHistoryPage: React.FC = () => {
         {MOCK_CALL_HISTORY.map((call) => (
           <div
             key={call.id}
-            className="bg-white rounded-[20px] p-4 flex items-center gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-transform"
+            className="bg-white dark:bg-slate-900 rounded-[20px] p-4 flex items-center gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] dark:shadow-none cursor-pointer active:scale-[0.98] transition-transform"
           >
             <div className="relative">
                 <img
                   src={call.avatar}
                   alt={call.name}
-                  className="w-12 h-12 rounded-full object-cover border border-gray-100"
+                  className="w-12 h-12 rounded-full object-cover border border-gray-100 dark:border-slate-800"
                 />
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-gray-900 truncate mb-1">{call.name}</h3>
+              <h3 className="font-bold text-gray-900 dark:text-white truncate mb-1">{call.name}</h3>
               <div className="flex items-center gap-1.5 text-xs font-medium">
                 {call.type === 'incoming' && (
                     <ArrowDownLeftIcon className="w-3.5 h-3.5 text-green-500" />
@@ -116,15 +117,15 @@ const CallHistoryPage: React.FC = () => {
                     <ArrowDownLeftIcon className="w-3.5 h-3.5 text-red-500" />
                 )}
                 
-                <span className={call.type === 'missed' ? 'text-red-500' : 'text-gray-500'}>
+                <span className={call.type === 'missed' ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}>
                     {call.type === 'missed' ? 'Missed' : call.type === 'incoming' ? 'Incoming' : 'Outgoing'}
                 </span>
-                <span className="text-gray-300">•</span>
-                <span className="text-gray-400">{call.timestamp}</span>
+                <span className="text-gray-300 dark:text-gray-600">•</span>
+                <span className="text-gray-400 dark:text-gray-500">{call.timestamp}</span>
               </div>
             </div>
 
-            <button className="p-2.5 rounded-full bg-green-50 hover:bg-green-100 text-green-600 transition-colors">
+            <button className="p-2.5 rounded-full bg-green-50 dark:bg-green-500/10 hover:bg-green-100 dark:hover:bg-green-500/20 text-green-600 dark:text-green-400 transition-colors">
                 {call.mode === 'video' ? <VideoIcon className="w-5 h-5" /> : <PhoneIcon className="w-5 h-5" />}
             </button>
           </div>
