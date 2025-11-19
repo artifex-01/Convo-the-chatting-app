@@ -5,6 +5,7 @@ import BottomNav from './components/BottomNav';
 import ProfilePage from './components/ProfilePage';
 import LoginPage from './components/LoginPage';
 import CallHistoryPage from './components/CallHistoryPage';
+import StatusPage from './components/StatusPage';
 import { CURRENT_USER, MOCK_CHATS } from './constants';
 import { ChatSession, NavTab } from './types';
 import { VoiceCallPage, VideoCallPage } from './components/CallPages';
@@ -72,14 +73,9 @@ const App: React.FC = () => {
               <ProfilePage user={CURRENT_USER} onLogout={() => setIsAuthenticated(false)} />
             )}
             
-            {/* Placeholder for Grid tab */}
+            {/* Status/Updates Grid Tab */}
             {activeTab === NavTab.GRID && (
-               <div className="flex flex-col items-center justify-center h-full text-gray-400 font-medium p-8 text-center">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                      <span className="text-2xl">🚧</span>
-                  </div>
-                  <p>This section is under construction.</p>
-               </div>
+               <StatusPage />
             )}
           </>
         )}
