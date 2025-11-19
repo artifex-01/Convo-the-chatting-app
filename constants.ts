@@ -1,4 +1,5 @@
-import { ChatSession, User } from './types';
+
+import { ChatSession, FilterTab, User } from './types';
 
 export const CURRENT_USER: User = {
   id: 'u1',
@@ -23,7 +24,8 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessage: 'How are you?',
     lastMessageTime: '10:24 AM',
     unreadCount: 5,
-    messages: []
+    messages: [],
+    category: FilterTab.OFFICE
   },
   {
     id: 'c2',
@@ -39,7 +41,8 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessage: 'Can we meet tomorrow?',
     lastMessageTime: '09:15 AM',
     unreadCount: 0,
-    messages: []
+    messages: [],
+    category: FilterTab.OFFICE
   },
   {
     id: 'c3',
@@ -55,6 +58,75 @@ export const MOCK_CHATS: ChatSession[] = [
     lastMessage: 'Are the updates ready?',
     lastMessageTime: 'Yesterday',
     unreadCount: 2,
-    messages: []
+    messages: [],
+    category: FilterTab.OFFICE
+  },
+  {
+    id: 'c4',
+    participants: [
+      {
+        id: 'p4',
+        name: 'Mom',
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop',
+        status: 'online',
+        isStoryActive: false
+      }
+    ],
+    lastMessage: 'Dinner is ready!',
+    lastMessageTime: '12:30 PM',
+    unreadCount: 1,
+    messages: [],
+    category: FilterTab.FAMILY
+  },
+  {
+    id: 'c5',
+    participants: [
+      {
+        id: 'p5',
+        name: 'Dad',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop',
+        status: 'offline',
+        isStoryActive: false
+      }
+    ],
+    lastMessage: 'Call me when you are free.',
+    lastMessageTime: 'Yesterday',
+    unreadCount: 0,
+    messages: [],
+    category: FilterTab.FAMILY
+  },
+  {
+    id: 'c6',
+    participants: [
+      {
+        id: 'p6',
+        name: 'Brother',
+        avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop',
+        status: 'online',
+        isStoryActive: true
+      }
+    ],
+    lastMessage: 'Did you see the game?',
+    lastMessageTime: 'Yesterday',
+    unreadCount: 3,
+    messages: [],
+    category: FilterTab.FAMILY
+  },
+  {
+    id: 'c7',
+    participants: [
+      {
+        id: 'p7',
+        name: 'Farhan',
+        avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=100&auto=format&fit=crop',
+        status: 'busy',
+        isStoryActive: false
+      }
+    ],
+    lastMessage: 'Project files sent.',
+    lastMessageTime: 'Mon',
+    unreadCount: 0,
+    messages: [],
+    category: FilterTab.ARCHIVE
   }
 ];

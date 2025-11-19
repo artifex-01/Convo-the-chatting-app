@@ -16,15 +16,6 @@ export interface Message {
   isOwn: boolean;
 }
 
-export interface ChatSession {
-  id: string;
-  participants: User[];
-  lastMessage: string;
-  lastMessageTime: string; // Display string like "10:24 AM"
-  unreadCount: number;
-  messages: Message[];
-}
-
 export enum NavTab {
   CHATS = 'Chats',
   GRID = 'Grid',
@@ -37,4 +28,14 @@ export enum FilterTab {
   OFFICE = 'OFFICE',
   FAMILY = 'FAMILY',
   ARCHIVE = 'ARCHIVE'
+}
+
+export interface ChatSession {
+  id: string;
+  participants: User[];
+  lastMessage: string;
+  lastMessageTime: string; // Display string like "10:24 AM"
+  unreadCount: number;
+  messages: Message[];
+  category: FilterTab;
 }

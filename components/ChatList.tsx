@@ -12,6 +12,11 @@ interface ChatListProps {
 const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect }) => {
   const [activeFilter, setActiveFilter] = useState<FilterTab>(FilterTab.ALL);
 
+  // Filter chats based on active tab
+  const filteredChats = activeFilter === FilterTab.ALL 
+    ? chats 
+    : chats.filter(chat => chat.category === activeFilter);
+
   return (
     <div className="flex flex-col h-full bg-[#F2F4F7] relative">
       {/* Header Section */}
@@ -47,7 +52,7 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect })
 
         <div className="flex items-center gap-3 mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Chat</h1>
-          <span className="bg-white px-3 py-1 rounded-full text-sm font-bold text-gray-800 shadow-sm">12</span>
+          <span className="bg-white px-3 py-1 rounded-full text-sm font-bold text-gray-800 shadow-sm">{filteredChats.length}</span>
         </div>
 
         {/* Tabs */}
@@ -73,48 +78,54 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect })
 
       {/* Chat Items List */}
       <div className="flex-1 overflow-y-auto px-4 pb-32 no-scrollbar space-y-3">
-        {chats.map((chat) => {
-          const otherUser = chat.participants[0];
-          return (
-            <div
-              key={chat.id}
-              onClick={() => onChatSelect(chat.id)}
-              className="bg-white rounded-[20px] p-4 flex items-center gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-transform"
-            >
-              <div className="relative">
-                {/* Avatar Ring */}
-                <div className={`rounded-full p-[2px] ${otherUser.isStoryActive ? 'bg-gradient-to-tr from-rose-400 to-red-500' : 'bg-transparent'}`}>
-                    <div className="bg-white p-[2px] rounded-full">
-                        <img
-                        src={otherUser.avatar}
-                        alt={otherUser.name}
-                        className="w-12 h-12 rounded-full object-cover"
-                        />
-                    </div>
-                </div>
-                {/* Online Status Dot */}
-                {otherUser.status === 'online' && (
-                  <span className="absolute bottom-1 right-0 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white rounded-full shadow-sm"></span>
-                )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="font-bold text-gray-900 truncate">{otherUser.name}</h3>
-                  <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{chat.lastMessageTime}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-gray-500 text-sm truncate pr-4">{chat.lastMessage}</p>
-                  {chat.unreadCount > 0 && (
-                    <span className="flex-shrink-0 w-5 h-5 bg-[#FF3B30] text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-                      {chat.unreadCount}
-                    </span>
+        {filteredChats.length > 0 ? (
+          filteredChats.map((chat) => {
+            const otherUser = chat.participants[0];
+            return (
+              <div
+                key={chat.id}
+                onClick={() => onChatSelect(chat.id)}
+                className="bg-white rounded-[20px] p-4 flex items-center gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-transform"
+              >
+                <div className="relative">
+                  {/* Avatar Ring */}
+                  <div className={`rounded-full p-[2px] ${otherUser.isStoryActive ? 'bg-gradient-to-tr from-rose-400 to-red-500' : 'bg-transparent'}`}>
+                      <div className="bg-white p-[2px] rounded-full">
+                          <img
+                          src={otherUser.avatar}
+                          alt={otherUser.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                          />
+                      </div>
+                  </div>
+                  {/* Online Status Dot */}
+                  {otherUser.status === 'online' && (
+                    <span className="absolute bottom-1 right-0 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white rounded-full shadow-sm"></span>
                   )}
                 </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <h3 className="font-bold text-gray-900 truncate">{otherUser.name}</h3>
+                    <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{chat.lastMessageTime}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-gray-500 text-sm truncate pr-4">{chat.lastMessage}</p>
+                    {chat.unreadCount > 0 && (
+                      <span className="flex-shrink-0 w-5 h-5 bg-[#FF3B30] text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+                        {chat.unreadCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          <div className="flex flex-col items-center justify-center h-40 text-gray-400 text-sm">
+            <p>No chats in this category</p>
+          </div>
+        )}
       </div>
 
       {/* New Contact Button */}
