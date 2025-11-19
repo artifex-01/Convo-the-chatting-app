@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChatSession, FilterTab, User } from '../types';
-import { BriefcaseIcon, MoreVerticalIcon, SearchIcon, PlusIcon, XIcon, UsersIcon, UserPlusIcon } from './Icon';
+import { BriefcaseIcon, SearchIcon, PlusIcon, XIcon, UsersIcon, UserPlusIcon } from './Icon';
 
 interface ChatListProps {
   currentUser: User;
@@ -71,6 +71,31 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
     }
   };
 
+  const handleInvite = async () => {
+    const inviteLink = "https://convo.app/download";
+    const shareData = {
+        title: 'Join Convo',
+        text: 'Hey! Chat with me on Convo. Download the app here:',
+        url: inviteLink,
+    };
+
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
+    } else {
+        try {
+            await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+            alert("Invite link copied to clipboard!");
+        } catch (err) {
+            alert(`Share this link: ${inviteLink}`);
+        }
+    }
+    setShowNewMenu(false);
+  };
+
   return (
     <div className="flex flex-col h-full bg-[#F2F4F7] dark:bg-slate-950 relative transition-colors duration-300">
       {/* Header Section */}
@@ -128,12 +153,6 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
                 aria-label="Search"
               >
                   <SearchIcon className="w-6 h-6" />
-              </button>
-              <button 
-                className="p-2 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm rounded-full transition-all hover:scale-110 active:scale-95"
-                aria-label="More options"
-              >
-                  <MoreVerticalIcon className="w-6 h-6" />
               </button>
             </div>
           </div>
@@ -290,6 +309,7 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect, o
         {/* Invite Option */}
         <div className={`transition-all duration-300 delay-75 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom ${showNewMenu ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
              <button 
+                 onClick={handleInvite}
                  className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 px-5 py-3 flex items-center gap-3 hover:scale-105 transition-transform text-gray-700 dark:text-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500"
                  aria-label="Invite friends"
              >
