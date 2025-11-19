@@ -14,6 +14,12 @@ export interface Message {
   text: string;
   timestamp: Date;
   isOwn: boolean;
+  attachment?: {
+    type: 'image' | 'video' | 'file';
+    url: string;
+    name?: string;
+    size?: string;
+  };
 }
 
 export enum NavTab {

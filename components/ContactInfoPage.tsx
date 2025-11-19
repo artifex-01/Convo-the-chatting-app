@@ -1,22 +1,44 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { User } from '../types';
-import { BlockIcon, ChevronLeftIcon, FlagIcon, ImageIcon, PhoneIcon, VideoIcon, ChevronRightIcon, BellIcon, SearchIcon } from './Icon';
+import { BlockIcon, ChevronLeftIcon, FlagIcon, ImageIcon, PhoneIcon, VideoIcon, ChevronRightIcon, BellIcon, SearchIcon, PaletteIcon } from './Icon';
 
 interface ContactInfoPageProps {
   contact: User;
   onBack: () => void;
+  onVoiceCall: () => void;
+  onVideoCall: () => void;
+  onMediaClick: () => void;
+  onWallpaperChange: (url: string | null) => void;
+  currentWallpaper: string | null;
 }
 
-const ContactInfoPage: React.FC<ContactInfoPageProps> = ({ contact, onBack }) => {
+const ContactInfoPage: React.FC<ContactInfoPageProps> = ({ 
+  contact, 
+  onBack, 
+  onVoiceCall, 
+  onVideoCall, 
+  onMediaClick,
+  onWallpaperChange,
+  currentWallpaper
+}) => {
   // Mock data for demonstration
   const phoneNumber = "+91 98765 43210";
+  const [showWallpaperPicker, setShowWallpaperPicker] = useState(false);
+  
   const mockMedia = [
     'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=100&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1593642632823-8f7853670c9a?q=80&w=100&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1550029402-226113b0c090?q=80&w=100&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1526779218898-0f2a31e95a0c?q=80&w=100&auto=format&fit=crop'
+  ];
+
+  const sampleWallpapers = [
+    { id: 'default', url: null, label: 'Default' },
+    { id: 'grad', url: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1000&auto=format&fit=crop', label: 'Gradient' },
+    { id: 'dark', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1000&auto=format&fit=crop', label: 'Texture' },
+    { id: 'abstract', url: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1000&auto=format&fit=crop', label: 'Abstract' }
   ];
 
   return (
@@ -45,20 +67,20 @@ const ContactInfoPage: React.FC<ContactInfoPageProps> = ({ contact, onBack }) =>
           
           {/* Action Buttons */}
           <div className="flex items-center gap-6 mt-6">
-             <button className="flex flex-col items-center gap-2 group">
-                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+             <button onClick={onVoiceCall} className="flex flex-col items-center gap-2 group cursor-pointer">
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover:scale-110 active:scale-95 transition-transform">
                     <PhoneIcon className="w-5 h-5 text-gray-700 dark:text-white" />
                 </div>
                 <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Audio</span>
              </button>
-             <button className="flex flex-col items-center gap-2 group">
-                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+             <button onClick={onVideoCall} className="flex flex-col items-center gap-2 group cursor-pointer">
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover:scale-110 active:scale-95 transition-transform">
                     <VideoIcon className="w-5 h-5 text-gray-700 dark:text-white" />
                 </div>
                 <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Video</span>
              </button>
-             <button className="flex flex-col items-center gap-2 group">
-                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+             <button className="flex flex-col items-center gap-2 group cursor-pointer">
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm group-hover:scale-110 active:scale-95 transition-transform">
                     <SearchIcon className="w-5 h-5 text-gray-700 dark:text-white" />
                 </div>
                 <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Search</span>
@@ -78,15 +100,21 @@ const ContactInfoPage: React.FC<ContactInfoPageProps> = ({ contact, onBack }) =>
 
         {/* Media Section */}
         <div className="mb-6">
-            <div className="flex items-center justify-between mb-3 px-2">
+            <div 
+                className="flex items-center justify-between mb-3 px-2 cursor-pointer group"
+                onClick={onMediaClick}
+            >
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Media, Links & Docs</h3>
-                <div className="flex items-center text-gray-400 gap-1 text-xs font-bold cursor-pointer hover:text-gray-600 dark:hover:text-gray-300">
+                <div className="flex items-center text-gray-400 gap-1 text-xs font-bold group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                     <span>124</span>
                     <ChevronRightIcon className="w-3 h-3" />
                 </div>
             </div>
-            <div className="bg-white dark:bg-slate-900 rounded-[20px] p-4 shadow-sm">
-                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+            <div 
+                className="bg-white dark:bg-slate-900 rounded-[20px] p-4 shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                onClick={onMediaClick}
+            >
+                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pointer-events-none">
                     {mockMedia.map((src, i) => (
                         <img key={i} src={src} className="w-20 h-20 rounded-xl object-cover flex-shrink-0" alt="media" />
                     ))}
@@ -95,6 +123,42 @@ const ContactInfoPage: React.FC<ContactInfoPageProps> = ({ contact, onBack }) =>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        {/* Wallpaper Section */}
+        <div className="mb-6">
+             <div 
+                className="flex items-center justify-between mb-3 px-2 cursor-pointer group"
+                onClick={() => setShowWallpaperPicker(!showWallpaperPicker)}
+            >
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Chat Wallpaper</h3>
+                <div className="flex items-center text-gray-400 gap-1 text-xs font-bold group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                    <ChevronRightIcon className={`w-3 h-3 transition-transform ${showWallpaperPicker ? 'rotate-90' : ''}`} />
+                </div>
+            </div>
+            
+            {showWallpaperPicker && (
+                <div className="bg-white dark:bg-slate-900 rounded-[20px] p-4 shadow-sm grid grid-cols-2 gap-3 animate-[fadeIn_0.3s_ease-out]">
+                    {sampleWallpapers.map((wp) => (
+                        <div 
+                            key={wp.id}
+                            onClick={() => onWallpaperChange(wp.url)}
+                            className={`h-24 rounded-xl overflow-hidden cursor-pointer relative border-2 ${currentWallpaper === wp.url ? 'border-blue-500' : 'border-transparent'}`}
+                        >
+                            {wp.url ? (
+                                <img src={wp.url} alt={wp.label} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full bg-[#F2F4F7] dark:bg-slate-950 flex items-center justify-center">
+                                    <span className="text-xs font-bold text-gray-400">Default</span>
+                                </div>
+                            )}
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/40 p-1">
+                                <p className="text-[10px] text-white text-center font-medium">{wp.label}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
 
         {/* Settings/Actions */}
@@ -107,6 +171,13 @@ const ContactInfoPage: React.FC<ContactInfoPageProps> = ({ contact, onBack }) =>
                     <span className="font-bold text-gray-700 dark:text-gray-200">Notifications</span>
                 </div>
                 <ChevronRightIcon className="w-5 h-5 text-gray-300" />
+            </button>
+            
+            <button className="w-full bg-white dark:bg-slate-900 p-4 rounded-[20px] flex items-center gap-4 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors group">
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                    <PaletteIcon className="w-5 h-5" />
+                </div>
+                <span className="font-bold text-gray-700 dark:text-gray-200">Theme</span>
             </button>
 
             <button className="w-full bg-white dark:bg-slate-900 p-4 rounded-[20px] flex items-center gap-4 shadow-sm hover:bg-red-50 dark:hover:bg-slate-800 transition-colors group">
@@ -130,6 +201,10 @@ const ContactInfoPage: React.FC<ContactInfoPageProps> = ({ contact, onBack }) =>
         @keyframes slideIn {
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
       `}</style>
     </div>

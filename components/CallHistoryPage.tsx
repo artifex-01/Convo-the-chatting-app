@@ -60,7 +60,11 @@ const MOCK_CALL_HISTORY = [
     }
 ];
 
-const CallHistoryPage: React.FC = () => {
+interface CallHistoryPageProps {
+  onCallClick: (name: string, avatar: string, type: 'voice' | 'video') => void;
+}
+
+const CallHistoryPage: React.FC<CallHistoryPageProps> = ({ onCallClick }) => {
   return (
     <div className="flex flex-col h-full bg-[#F2F4F7] dark:bg-slate-950 transition-colors duration-300">
       {/* Header Section */}
@@ -125,7 +129,13 @@ const CallHistoryPage: React.FC = () => {
               </div>
             </div>
 
-            <button className="p-2.5 rounded-full bg-green-50 dark:bg-green-500/10 hover:bg-green-100 dark:hover:bg-green-500/20 text-green-600 dark:text-green-400 transition-colors">
+            <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCallClick(call.name, call.avatar, call.mode as 'voice' | 'video');
+                }}
+                className="p-2.5 rounded-full bg-green-50 dark:bg-green-500/10 hover:bg-green-100 dark:hover:bg-green-500/20 text-green-600 dark:text-green-400 transition-colors"
+            >
                 {call.mode === 'video' ? <VideoIcon className="w-5 h-5" /> : <PhoneIcon className="w-5 h-5" />}
             </button>
           </div>

@@ -13,6 +13,7 @@ import ContactInfoPage from './components/ContactInfoPage';
 import { CURRENT_USER, MOCK_CHATS } from './constants';
 import { ChatSession, NavTab, User } from './types';
 import { VoiceCallPage, VideoCallPage } from './components/CallPages';
+import MediaGalleryPage from './components/MediaGalleryPage';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,11 +25,14 @@ const App: React.FC = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [viewingContactInfo, setViewingContactInfo] = useState(false);
+  const [viewingMedia, setViewingMedia] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [chatBackground, setChatBackground] = useState<string | null>(null);
 
   const handleChatSelect = (chatId: string) => {
     setSelectedChatId(chatId);
     setViewingContactInfo(false); // Reset contact info view when selecting new chat
+    setViewingMedia(false);
   };
 
   const handleBackToHome = () => {
@@ -48,6 +52,29 @@ const App: React.FC = () => {
   const handleSaveProfile = (updatedUser: User) => {
     setCurrentUser(updatedUser);
     setIsEditingProfile(false);
+  };
+
+  const handleCallFromHistory = (name: string, avatar: string, type: 'voice' | 'video') => {
+    // Try to find existing chat
+    let chatToUse = chats.find(c => !c.isGroup && c.participants[0].name === name);
+
+    // If not found, create a temporary dummy session for the call
+    if (!chatToUse) {
+        chatToUse = {
+            id: `temp_${Date.now()}`,
+            participants: [{
+                id: `temp_u_${Date.now()}`,
+                name: name,
+                avatar: avatar,
+                status: 'online'
+            }],
+            lastMessage: '',
+            lastMessageTime: '',
+            unreadCount: 0,
+            messages: []
+        };
+    }
+    setActiveCall({ type, chat: chatToUse });
   };
 
   // If user is not logged in, show Login Page
@@ -84,6 +111,8 @@ const App: React.FC = () => {
                     onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
                     onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
                     onHeaderClick={() => setViewingContactInfo(true)}
+                    backgroundImage={chatBackground}
+                    onWallpaperChange={setChatBackground}
                 />
                 
                 {/* Contact Info Page Overlay */}
@@ -92,7 +121,19 @@ const App: React.FC = () => {
                     <ContactInfoPage 
                       contact={activeChatSession.participants[0]}
                       onBack={() => setViewingContactInfo(false)}
+                      onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
+                      onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
+                      onMediaClick={() => setViewingMedia(true)}
+                      onWallpaperChange={setChatBackground}
+                      currentWallpaper={chatBackground}
                     />
+                    
+                    {/* Media Gallery Overlay */}
+                    {viewingMedia && (
+                        <div className="absolute inset-0 z-40 bg-[#F2F4F7] dark:bg-slate-950">
+                            <MediaGalleryPage onBack={() => setViewingMedia(false)} />
+                        </div>
+                    )}
                   </div>
                 )}
             </div>
@@ -127,7 +168,7 @@ const App: React.FC = () => {
                 )}
 
                 {activeTab === NavTab.CALLS && (
-                <CallHistoryPage />
+                <CallHistoryPage onCallClick={handleCallFromHistory} />
                 )}
                 
                 {activeTab === NavTab.SETTINGS && (
