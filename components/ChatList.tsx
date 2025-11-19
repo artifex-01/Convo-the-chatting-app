@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChatSession, FilterTab, User } from '../types';
-import { BriefcaseIcon, MoreVerticalIcon, SearchIcon } from './Icon';
+import { BriefcaseIcon, MoreVerticalIcon, SearchIcon, PlusIcon } from './Icon';
 
 interface ChatListProps {
   currentUser: User;
@@ -12,7 +12,7 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect })
   const [activeFilter, setActiveFilter] = useState<FilterTab>(FilterTab.ALL);
 
   return (
-    <div className="flex flex-col h-full bg-[#F2F4F7]">
+    <div className="flex flex-col h-full bg-[#F2F4F7] relative">
       {/* Header Section */}
       <div className="pt-8 pb-4 px-6 bg-[#F2F4F7]">
         <div className="flex items-start justify-between mb-6">
@@ -118,6 +118,12 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect })
           );
         })}
       </div>
+
+      {/* New Contact Button */}
+      <button className="absolute bottom-28 right-6 bg-black text-white px-5 py-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] flex items-center gap-2 font-bold tracking-wide hover:scale-105 active:scale-95 transition-all z-10">
+        <PlusIcon className="w-5 h-5 stroke-[3px]" />
+        <span>New</span>
+      </button>
     </div>
   );
 };
