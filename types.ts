@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -33,7 +34,7 @@ export enum NavTab {
 
 export enum FilterTab {
   ALL = 'ALL',
-  UNREAD = 'UNREAD',
-  GROUPS = 'GROUPS',
-  NEW = 'NEW'
+  OFFICE = 'OFFICE',
+  FAMILY = 'FAMILY',
+  ARCHIVE = 'ARCHIVE'
 }

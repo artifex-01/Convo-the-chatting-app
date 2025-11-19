@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChatSession, FilterTab, User } from '../types';
 import { BriefcaseIcon, MoreVerticalIcon, SearchIcon, PlusIcon } from './Icon';
@@ -50,24 +51,21 @@ const ChatList: React.FC<ChatListProps> = ({ currentUser, chats, onChatSelect })
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center justify-between border-b border-gray-200/50 pb-0">
+        <div className="flex items-center justify-start gap-8 border-b border-gray-200/50 pb-0">
           {[
-            { label: 'ALL', id: FilterTab.ALL },
-            { label: 'UNREAD', id: FilterTab.UNREAD },
-            { label: 'GROUPS', id: FilterTab.GROUPS },
-            { label: 'NEW', id: FilterTab.NEW },
+            { label: 'All', id: FilterTab.ALL },
+            { label: 'Office', id: FilterTab.OFFICE },
+            { label: 'Family', id: FilterTab.FAMILY },
+            { label: 'Archive', id: FilterTab.ARCHIVE },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
-              className={`pb-3 text-xs font-bold tracking-wider uppercase relative transition-colors ${
-                activeFilter === tab.id ? 'text-black' : 'text-gray-400 hover:text-gray-600'
+              className={`pb-3 text-[15px] relative transition-colors ${
+                activeFilter === tab.id ? 'font-bold text-[#0F172A]' : 'font-medium text-[#94A3B8] hover:text-gray-600'
               }`}
             >
-              {tab.label === 'UNREAD' ? 'UNRE...' : tab.label === 'GROUPS' ? 'GROU...' : tab.label}
-              {activeFilter === tab.id && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-black rounded-t-full" />
-              )}
+              {tab.label}
             </button>
           ))}
         </div>
