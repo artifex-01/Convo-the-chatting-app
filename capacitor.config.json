@@ -1,0 +1,8 @@
+{
+  "appId": "com.convo.app",
+  "appName": "Convo",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
