@@ -83,13 +83,8 @@ const CallHistoryPage: React.FC<CallHistoryPageProps> = ({ onCallClick }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-6">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Calls</h1>
-        </div>
-        
-        <div className="flex items-center gap-4 text-sm font-bold text-gray-400 border-b border-gray-200/50 dark:border-slate-800/50">
-            <button className="pb-3 text-black dark:text-white border-b-2 border-black dark:border-white">ALL</button>
-            <button className="pb-3 hover:text-gray-600 dark:hover:text-gray-300">MISSED</button>
         </div>
       </div>
 
