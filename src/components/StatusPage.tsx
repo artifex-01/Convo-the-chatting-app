@@ -7,6 +7,22 @@ import StatusViewer, { StatusSession } from './StatusViewer';
 // Rich Mock Status Data
 const MOCK_STATUS_DATA: StatusSession[] = [
   {
+    id: 's_doe',
+    name: 'John Doe',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
+    timestamp: '30 Minutes Ago',
+    isViewed: false,
+    items: [
+        {
+            id: 'st_doe_1',
+            type: 'promo',
+            content: 'Promo',
+            duration: 8,
+            timestamp: '30 Minutes Ago'
+        }
+    ]
+  },
+  {
     id: 's1',
     name: 'Arshad Khan',
     avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop',
@@ -14,26 +30,17 @@ const MOCK_STATUS_DATA: StatusSession[] = [
     isViewed: false,
     items: [
         {
+            id: 'st1_promo',
+            type: 'promo', // Changed to promo to match requested design
+            duration: 8,
+            timestamp: 'Just now'
+        },
+        {
             id: 'st1_1',
             type: 'image',
             url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1000&auto=format&fit=crop', // Nature
             duration: 5,
             timestamp: '15m ago'
-        },
-        {
-            id: 'st1_2',
-            type: 'text',
-            content: 'Hiking trip this weekend! 🏔️ Who is in?',
-            bgClass: 'bg-gradient-to-tr from-green-400 to-blue-500',
-            duration: 4,
-            timestamp: '10m ago'
-        },
-        {
-            id: 'st1_3',
-            type: 'video',
-            url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop', // Simulating video frame
-            duration: 6,
-            timestamp: 'Just now'
         }
     ]
   },
@@ -51,13 +58,6 @@ const MOCK_STATUS_DATA: StatusSession[] = [
             bgClass: 'bg-gradient-to-bl from-orange-500 to-yellow-500',
             duration: 5,
             timestamp: 'Today, 10:23 AM'
-        },
-        {
-            id: 'st2_2',
-            type: 'image',
-            url: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1000&auto=format&fit=crop', // Office
-            duration: 5,
-            timestamp: 'Today, 10:25 AM'
         }
     ]
   },
@@ -113,9 +113,9 @@ const StatusPage: React.FC<StatusPageProps> = ({ currentUser }) => {
 
   const recentUpdates = MOCK_STATUS_DATA.filter(s => !s.isViewed);
   const viewedUpdates = MOCK_STATUS_DATA.filter(s => s.isViewed);
-  const allStories = [...recentUpdates, ...viewedUpdates];
+  const allStories = MOCK_STATUS_DATA; 
 
-  // Mock My Status for demonstration when clicked
+  // Mock My Status click to show the specific Promo design
   const handleMyStatusClick = () => {
       const myMockStatus: StatusSession = {
           id: 'my_status',
@@ -126,10 +126,9 @@ const StatusPage: React.FC<StatusPageProps> = ({ currentUser }) => {
           items: [
               {
                   id: 'myst1',
-                  type: 'text',
-                  content: 'Working on something cool! 👨‍💻',
-                  bgClass: 'bg-gradient-to-r from-violet-600 to-indigo-600',
-                  duration: 5,
+                  type: 'promo', // Display Promo type for My Status as well
+                  content: 'Collection',
+                  duration: 8,
                   timestamp: 'Just now'
               }
           ]
@@ -282,17 +281,24 @@ const StatusPage: React.FC<StatusPageProps> = ({ currentUser }) => {
   );
 };
 
-const StoryCard = ({ status, onClick }: { status: StatusSession, onClick: () => void }) => {
+const StoryCard: React.FC<{ status: StatusSession, onClick: () => void }> = ({ status, onClick }) => {
     // Find first image/video for thumbnail, or use text bg
     const mediaItem = status.items.find(i => i.type === 'image' || i.type === 'video');
     const bgUrl = mediaItem?.url;
+    
+    // Check for promo
+    const isPromo = status.items[0]?.type === 'promo';
     
     return (
         <div 
             onClick={onClick}
             className="flex-shrink-0 w-32 h-48 rounded-2xl relative overflow-hidden cursor-pointer active:scale-95 transition-transform group shadow-md"
         >
-            {bgUrl ? (
+            {isPromo ? (
+                 <div className="w-full h-full bg-[#635BCA] flex items-center justify-center">
+                    <span className="text-white font-black text-xl rotate-[-12deg] opacity-50">SALE</span>
+                 </div>
+            ) : bgUrl ? (
                 <img src={bgUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={status.name} />
             ) : (
                  <div className={`w-full h-full ${status.items[0]?.bgClass || 'bg-gradient-to-br from-indigo-500 to-pink-500'} flex items-center justify-center`}>
