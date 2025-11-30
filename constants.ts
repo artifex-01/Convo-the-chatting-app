@@ -1,5 +1,5 @@
 
-import { ChatSession, FilterTab, User } from './types';
+import { AppChatSession, FilterTab, User } from './types';
 
 export const CURRENT_USER: User = {
   id: 'u1',
@@ -9,7 +9,7 @@ export const CURRENT_USER: User = {
   tagline: 'At work'
 };
 
-export const MOCK_CHATS: ChatSession[] = [
+export const MOCK_CHATS: AppChatSession[] = [
   {
     id: 'c1',
     participants: [

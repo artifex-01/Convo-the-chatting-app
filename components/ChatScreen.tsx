@@ -1,13 +1,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ChatSession, Message } from '../types';
+import { AppChatSession, Message } from '../types';
 import { ChevronLeftIcon, MoreVerticalIcon, PhoneIcon, SendIcon, VideoIcon, PaletteIcon, XIcon, PlusIcon, ImageIcon, FileTextIcon, PaperclipIcon } from './Icon';
 import { createChatSession, sendMessageToGemini } from '../services/geminiService';
-import { Chat } from "@google/genai";
+// import { ChatSession } from "@google/generative-ai";
+
+type LocalChatSession = {
+  history: { role: "user" | "model"; text: string }[];
+};
 
 interface ChatScreenProps {
-  chatSession: ChatSession;
-  onBack: () => void;
+  chatSession: AppChatSession;
+  onBack: () => void; 
   onVoiceCall: () => void;
   onVideoCall: () => void;
   onHeaderClick: () => void;
@@ -32,7 +36,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const geminiChatRef = useRef<Chat | null>(null);
+  const geminiChatRef = useRef<LocalChatSession | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Determine display details
@@ -54,7 +58,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
   // Initialize chat with existing messages or history (simulated)
   useEffect(() => {
     // Initialize Gemini Chat
-    geminiChatRef.current = createChatSession(displayName);
+    geminiChatRef.current = createChatSession();
     
     // Set initial messages
     let initialMessages = chatSession.messages;

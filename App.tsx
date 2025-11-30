@@ -1,5 +1,6 @@
-
-import React, { useState } from 'react';
+import { getDatabase } from 'firebase/database';
+import { app } from "./firebase";
+import React, { useState, useEffect } from 'react';
 import ChatList from './components/ChatList';
 import ChatScreen from './components/ChatScreen';
 import BottomNav from './components/BottomNav';
@@ -29,9 +30,19 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [chatBackground, setChatBackground] = useState<string | null>(null);
 
+  /* --------------------------------------
+     PERSIST LOGIN CHECK ON APP LOAD
+  -------------------------------------- */
+  useEffect(() => {
+    const logged = localStorage.getItem("isLoggedIn");
+    if (logged === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   const handleChatSelect = (chatId: string) => {
     setSelectedChatId(chatId);
-    setViewingContactInfo(false); // Reset contact info view when selecting new chat
+    setViewingContactInfo(false);
     setViewingMedia(false);
   };
 
@@ -44,9 +55,9 @@ const App: React.FC = () => {
   };
 
   const handleCreateGroup = (newGroup: ChatSession) => {
-      setChats([newGroup, ...chats]);
-      setIsCreatingGroup(false);
-      setSelectedChatId(newGroup.id); // Optionally open the new chat immediately
+    setChats([newGroup, ...chats]);
+    setIsCreatingGroup(false);
+    setSelectedChatId(newGroup.id);
   };
 
   const handleSaveProfile = (updatedUser: User) => {
@@ -55,155 +66,169 @@ const App: React.FC = () => {
   };
 
   const handleCallFromHistory = (name: string, avatar: string, type: 'voice' | 'video') => {
-    // Try to find existing chat
     let chatToUse = chats.find(c => !c.isGroup && c.participants[0].name === name);
 
-    // If not found, create a temporary dummy session for the call
     if (!chatToUse) {
-        chatToUse = {
-            id: `temp_${Date.now()}`,
-            participants: [{
-                id: `temp_u_${Date.now()}`,
-                name: name,
-                avatar: avatar,
-                status: 'online'
-            }],
-            lastMessage: '',
-            lastMessageTime: '',
-            unreadCount: 0,
-            messages: []
-        };
+      chatToUse = {
+        id: `temp_${Date.now()}`,
+        participants: [{
+          id: `temp_u_${Date.now()}`,
+          name: name,
+          avatar: avatar,
+          status: 'online'
+        }],
+        lastMessage: '',
+        lastMessageTime: '',
+        unreadCount: 0,
+        messages: []
+      };
     }
+
     setActiveCall({ type, chat: chatToUse });
   };
 
-  // If user is not logged in, show Login Page
+  /* --------------------------------------
+      SHOW LOGIN PAGE UNTIL AUTHENTICATED
+  -------------------------------------- */
   if (!isAuthenticated) {
     return (
-        <div className={isDarkMode ? 'dark' : ''}>
-            <LoginPage onLogin={() => setIsAuthenticated(true)} />
-        </div>
+      <div className={isDarkMode ? 'dark' : ''}>
+        <LoginPage
+          onLogin={() => {
+            localStorage.setItem("isLoggedIn", "true");   // store login session
+            setIsAuthenticated(true);
+          }}
+        />
+      </div>
     );
   }
 
   const activeChatSession = chats.find(c => c.id === selectedChatId);
 
-  // Render Call Screens Overlay
+  /* --------------------------------------
+      ACTIVE CALL RENDER
+  -------------------------------------- */
   if (activeCall) {
-      if (activeCall.type === 'voice') {
-          return <VoiceCallPage chat={activeCall.chat} onEnd={() => setActiveCall(null)} />;
-      } else {
-          return <VideoCallPage chat={activeCall.chat} onEnd={() => setActiveCall(null)} />;
-      }
+    if (activeCall.type === 'voice') {
+      return <VoiceCallPage chat={activeCall.chat} onEnd={() => setActiveCall(null)} />;
+    } else {
+      return <VideoCallPage chat={activeCall.chat} onEnd={() => setActiveCall(null)} />;
+    }
   }
 
   return (
     <div className={`${isDarkMode ? 'dark' : ''} w-full h-full`}>
-        <div className="w-full h-full relative bg-[#F2F4F7] dark:bg-slate-950 flex flex-col overflow-hidden transition-colors duration-300">
-        {/* Main Content Area */}
+      <div className="w-full h-full relative bg-[#F2F4F7] dark:bg-slate-950 flex flex-col overflow-hidden transition-colors duration-300">
+
         <div className="flex-1 overflow-hidden relative">
-            {/* Active Chat Screen */}
-            {selectedChatId && activeChatSession ? (
+
+          {/* Chat Screen */}
+          {selectedChatId && activeChatSession ? (
             <div className="absolute inset-0 z-20 bg-[#F2F4F7] dark:bg-slate-950 animate-[slideIn_0.3s_ease-out]">
-                <ChatScreen 
-                    chatSession={activeChatSession} 
-                    onBack={handleBackToHome}
+              <ChatScreen
+                chatSession={activeChatSession}
+                onBack={handleBackToHome}
+                onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
+                onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
+                onHeaderClick={() => setViewingContactInfo(true)}
+                backgroundImage={chatBackground}
+                onWallpaperChange={setChatBackground}
+              />
+
+              {/* Contact Info Overlay */}
+              {viewingContactInfo && (
+                <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
+                  <ContactInfoPage
+                    contact={activeChatSession.participants[0]}
+                    onBack={() => setViewingContactInfo(false)}
                     onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
                     onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
-                    onHeaderClick={() => setViewingContactInfo(true)}
-                    backgroundImage={chatBackground}
+                    onMediaClick={() => setViewingMedia(true)}
                     onWallpaperChange={setChatBackground}
-                />
-                
-                {/* Contact Info Page Overlay */}
-                {viewingContactInfo && (
-                  <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
-                    <ContactInfoPage 
-                      contact={activeChatSession.participants[0]}
-                      onBack={() => setViewingContactInfo(false)}
-                      onVoiceCall={() => setActiveCall({ type: 'voice', chat: activeChatSession })}
-                      onVideoCall={() => setActiveCall({ type: 'video', chat: activeChatSession })}
-                      onMediaClick={() => setViewingMedia(true)}
-                      onWallpaperChange={setChatBackground}
-                      currentWallpaper={chatBackground}
-                    />
-                    
-                    {/* Media Gallery Overlay */}
-                    {viewingMedia && (
-                        <div className="absolute inset-0 z-40 bg-[#F2F4F7] dark:bg-slate-950">
-                            <MediaGalleryPage onBack={() => setViewingMedia(false)} />
-                        </div>
-                    )}
-                  </div>
-                )}
-            </div>
-            ) : isEditingProfile ? (
-            // Edit Profile Screen
-            <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
-                <EditProfilePage 
-                    user={currentUser} 
-                    onBack={() => setIsEditingProfile(false)} 
-                    onSave={handleSaveProfile} 
-                />
-            </div>
-            ) : isCreatingGroup ? (
-            // Create Group Screen
-            <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
-                <CreateGroupPage 
-                    onBack={() => setIsCreatingGroup(false)}
-                    onCreate={handleCreateGroup}
-                />
-            </div>
-            ) : (
-            // Tab Views
-            <>
-                {activeTab === NavTab.CHATS && (
-                <ChatList 
-                    currentUser={currentUser} 
-                    chats={chats} 
-                    onChatSelect={handleChatSelect} 
-                    onProfileClick={() => setIsEditingProfile(true)}
-                    onCreateGroupClick={() => setIsCreatingGroup(true)}
-                />
-                )}
+                    currentWallpaper={chatBackground}
+                  />
 
-                {activeTab === NavTab.CALLS && (
-                <CallHistoryPage onCallClick={handleCallFromHistory} />
-                )}
-                
-                {activeTab === NavTab.SETTINGS && (
-                <ProfilePage 
-                    user={currentUser} 
-                    onLogout={() => setIsAuthenticated(false)} 
-                    onEditProfile={() => setIsEditingProfile(true)}
-                    isDarkMode={isDarkMode}
-                    onToggleDarkMode={toggleDarkMode}
+                  {viewingMedia && (
+                    <div className="absolute inset-0 z-40 bg-[#F2F4F7] dark:bg-slate-950">
+                      <MediaGalleryPage onBack={() => setViewingMedia(false)} />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : isEditingProfile ? (
+
+            // Edit Profile
+            <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
+              <EditProfilePage
+                user={currentUser}
+                onBack={() => setIsEditingProfile(false)}
+                onSave={handleSaveProfile}
+              />
+            </div>
+
+          ) : isCreatingGroup ? (
+
+            // Create Group
+            <div className="absolute inset-0 z-30 bg-[#F2F4F7] dark:bg-slate-950">
+              <CreateGroupPage
+                onBack={() => setIsCreatingGroup(false)}
+                onCreate={handleCreateGroup}
+              />
+            </div>
+
+          ) : (
+            <>
+              {activeTab === NavTab.CHATS && (
+                <ChatList
+                  currentUser={currentUser}
+                  chats={chats}
+                  onChatSelect={handleChatSelect}
+                  onProfileClick={() => setIsEditingProfile(true)}
+                  onCreateGroupClick={() => setIsCreatingGroup(true)}
                 />
-                )}
-                
-                {/* Status/Updates Grid Tab */}
-                {activeTab === NavTab.GRID && (
+              )}
+
+              {activeTab === NavTab.CALLS && (
+                <CallHistoryPage onCallClick={handleCallFromHistory} />
+              )}
+
+              {activeTab === NavTab.SETTINGS && (
+                <ProfilePage
+                  user={currentUser}
+                  onLogout={() => {
+                    localStorage.removeItem("isLoggedIn");
+                    setIsAuthenticated(false);
+                  }}
+                  onEditProfile={() => setIsEditingProfile(true)}
+                  isDarkMode={isDarkMode}
+                  onToggleDarkMode={toggleDarkMode}
+                />
+              )}
+
+              {activeTab === NavTab.GRID && (
                 <StatusPage currentUser={currentUser} />
-                )}
+              )}
             </>
-            )}
+          )}
         </div>
 
-        {/* Bottom Navigation - Only show on home screen */}
         {!selectedChatId && !isEditingProfile && !isCreatingGroup && (
-            <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
         )}
-        
-        {/* Add some custom animation styles via style tag within component for slide effect */}
+
         <style>{`
-            @keyframes slideIn {
+          @keyframes slideIn {
             from { transform: translateX(100%); }
             to { transform: translateX(0); }
-            }
+          }
         `}</style>
-        </div>
+
+      </div>
     </div>
   );
 };
 
 export default App;
+
+const db = getDatabase(app);
