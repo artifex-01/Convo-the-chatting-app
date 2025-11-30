@@ -12,7 +12,7 @@ import EditProfilePage from './components/EditProfilePage';
 import CreateGroupPage from './components/CreateGroupPage';
 import ContactInfoPage from './components/ContactInfoPage';
 import { CURRENT_USER, MOCK_CHATS } from './constants';
-import { ChatSession, NavTab, User } from './types';
+import { AppChatSession as ChatSession, NavTab, User } from './types';
 import { VoiceCallPage, VideoCallPage } from './components/CallPages';
 import MediaGalleryPage from './components/MediaGalleryPage';
 
