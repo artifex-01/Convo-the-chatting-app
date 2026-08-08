@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Convo</title>
     <link rel="manifest" href="./manifest.json" />
-    <link rel="stylesheet" href="style.css">
     <meta name="theme-color" content="#F2F4F7" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -51,13 +50,14 @@
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
   }
 }
 </script>
 </head>
-  <body class=" text-slate-900 m-0 p-0 h-[100dvh] w-screen">
-    <div id="root" class="w-full h-full overflow-x-hidden relative"></div>
+  <body class="bg-[#F2F4F7] text-slate-900 m-0 p-0 h-[100dvh] w-screen overflow-hidden">
+    <div id="root" class="w-full h-full overflow-hidden relative"></div>
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>

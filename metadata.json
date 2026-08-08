@@ -1,5 +1,6 @@
 {
   "name": "MonoChat",
   "description": "A sleek, modern chat application replicating a specific design aesthetic, powered by Google Gemini for real-time conversations.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

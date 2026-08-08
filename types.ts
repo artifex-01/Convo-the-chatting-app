@@ -36,7 +36,7 @@ export enum FilterTab {
   NEW = 'NEW'
 }
 
-export interface AppChatSession {
+export interface ChatSession {
   id: string;
   participants: User[];
   lastMessage: string;
